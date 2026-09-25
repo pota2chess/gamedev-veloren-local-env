@@ -1,0 +1,25 @@
+replicaCount: 1
+
+application:
+  name: veloren-server-master
+  image: pota2chess/veloren-server-cli
+
+env:
+  RUST_LOG: "debug"
+
+service:
+  ports:
+    gameServer: 14004
+    webInterface: 14005
+    serverQuery: 14006
+  type: NodePort
+
+persistence:
+  storageClassName: "local-path"
+  accessModes: ReadWriteOnce
+  size: "10Gi"
+
+metallb:
+  namespace: "metallb-system"
+  addresses: 
+  - 192.168.1.240-192.168.1.250
