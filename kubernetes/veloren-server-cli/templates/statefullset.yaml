@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Values.application.name }}
+spec:
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.application.name }}
+  serviceName: {{ .Values.application.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.application.name }}
+    spec:
+      containers:
+      - name: {{ .Values.application.name }}
+        image: {{ .Values.application.image }}
+        tty: true
+        stdin: true
+        ports:
+        - containerPort: {{ .Values.service.ports.gameServer }}
+          protocol: UDP
+          name: game-server-udp
+        - containerPort: {{ .Values.service.ports.gameServer }}
+          protocol: TCP
+          name: game-server-tcp
+        - containerPort: {{ .Values.service.ports.webInterface }}
+          protocol: TCP
+          name: web-interface
+        - containerPort: {{ .Values.service.ports.serverQuery }}
+          protocol: UDP
+          name: server-query
+        {{- if .Values.env }}
+        env:
+        {{- range $key, $value := .Values.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end}}
+        {{- end}}
+        volumeMounts:
+        - name: userdata
+          mountPath: /opt/userdata
+  volumeClaimTemplates:
+  - metadata:
+      name: userdata
+    spec:
+      accessModes: 
+      - {{ .Values.persistence.accessModes }}
+      storageClassName: {{ .Values.persistence.storageClassName | quote }}
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size }}
