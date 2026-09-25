@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Values.application.name }}
+spec:
+  selector:
+    app: {{ .Values.application.name }}
+  type: LoadBalancer
+  ports:
+  - port: {{ .Values.service.ports.gameServer }}
+    name: game-server
+  - port: {{ .Values.service.ports.webInterface }}
+    name: web-interface
+  - port: {{ .Values.service.ports.serverQuery }}
+    name: server-query
